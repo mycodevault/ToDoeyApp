@@ -9,7 +9,7 @@
 import UIKit
 
 class ToDoListViewController: UITableViewController {
-    let itemArray = ["a","b","c"]
+    var itemArray = ["a","b","c"]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,7 +50,36 @@ class ToDoListViewController: UITableViewController {
         //flash when cell selected
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    //MARK:- Add New Items
+    
+    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        
+        var textFieldLocal = UITextField()
+        
+        let alertVC = UIAlertController(title: "Add New", message: "", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+            //what will happen once the user clicks the add item button on the alertVC
+        
+           
+           self.itemArray.append(textFieldLocal.text!)//need to filter for empty textfield
+           self.tableView.reloadData() //the reload takes a LONG TIME.....must wait
+           print("reload triggered")
+            
+        
+        }
+        
+        alertVC.addTextField { (alertTextField) in
+            alertTextField.placeholder = "create new item"
+            textFieldLocal = alertTextField
 
+        }
+        alertVC.addAction(action)
+        
+        present(alertVC, animated: true, completion: nil)
+        
+    }
     
 }
 
