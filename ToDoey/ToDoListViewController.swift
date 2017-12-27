@@ -11,30 +11,25 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     var itemArray = [Item]()
     
+    //file manager = interface to filesystem
+    //default filemanager = shared file manager object - singleton - ststatic property
+    //the singleton returns an array of urls organised by directory and domain maskz
+    //userdomain mask = user own direcory
     
-    let defaults = UserDefaults.standard
+    let dataFilePath =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Item.plist")
+  
+  
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+    
         
-        let newItem1 = Item()
-        newItem1.title = "a"
-        itemArray.append(newItem1)
-        
-        let newItem2 = Item()
-        newItem2.title = "b"
-        itemArray.append(newItem2)
-        
-        let newItem3 = Item()
-        newItem3.title = "c"
-        itemArray.append(newItem3)
+        loadItems()
        
         
-        if let retrievedItemsArray = defaults.array(forKey: "toDoListArrayKey") as? [Item] {
-            itemArray = retrievedItemsArray
-        }
+
     }
     
     //MARK:- TableView Datasource Methods
@@ -67,12 +62,10 @@ class ToDoListViewController: UITableViewController {
     //tell me what row was selected
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     
-        //print(itemArray[indexPath.row])
+     
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
     
-       tableView.reloadData()
-        
-        
+        saveItems()
         
         //flash when cell de-selected
         tableView.deselectRow(at: indexPath, animated: true)
@@ -93,11 +86,8 @@ class ToDoListViewController: UITableViewController {
             itemToAdd.title = textFieldLocal.text!
            self.itemArray.append(itemToAdd)//need to filter for empty textfield
             
-           self.defaults.set(self.itemArray, forKey: "toDoListArrayKey")
-            
-           self.tableView.reloadData() //the reload takes a LONG TIME.....must wait
-           print("reload triggered")
-            
+            self.saveItems()
+
         
         }
         
@@ -110,6 +100,37 @@ class ToDoListViewController: UITableViewController {
         
         present(alertVC, animated: true, completion: nil)
         
+    }
+    
+    //MARK:- MODEL MANIPULATION METHODS
+    
+    func saveItems(){
+        
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch {
+            print("error encoding item array: \(error)")
+        }
+        
+        
+        self.tableView.reloadData() //the reload takes a LONG TIME.....must wait
+        
+        
+    }
+    func loadItems(){
+        
+        if let data = try? Data(contentsOf: dataFilePath!){
+        
+            let decoder = PropertyListDecoder()
+            
+            do{
+            itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("error decoding item array: \(error)")
+            }
+        }
     }
     
 }

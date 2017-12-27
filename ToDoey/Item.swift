@@ -7,8 +7,9 @@
 //
 
 import Foundation
-
-class Item{
+//make class encodable to plist form
+//only primative data types
+class Item : Encodable, Decodable{
     
     var title = ""
     var done = false
