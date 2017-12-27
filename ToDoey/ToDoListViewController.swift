@@ -11,9 +11,15 @@ import UIKit
 class ToDoListViewController: UITableViewController {
     var itemArray = ["a","b","c"]
     
+    
+    let defaults = UserDefaults.standard
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        if let items = defaults.array(forKey: "toDoListArrayKey") as? [String] {
+            itemArray = items
+        }
     }
     
     //MARK:- TableView Datasource Methods
@@ -64,6 +70,9 @@ class ToDoListViewController: UITableViewController {
         
            
            self.itemArray.append(textFieldLocal.text!)//need to filter for empty textfield
+            
+           self.defaults.set(self.itemArray, forKey: "toDoListArrayKey")
+            
            self.tableView.reloadData() //the reload takes a LONG TIME.....must wait
            print("reload triggered")
             
